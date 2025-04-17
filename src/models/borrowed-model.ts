@@ -1,4 +1,5 @@
 export interface BorrowedBook {
+  //borrow book model
   id?: number;
   userId: number;
   bookId: number;

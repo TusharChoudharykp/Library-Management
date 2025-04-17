@@ -13,14 +13,14 @@ class BorrowedService {
     const insertId = result.insertId;
 
     const [rows] = await pool.execute<RowDataPacket[]>(
-      `SELECT 
-             bb.id, 
-             u.id AS userId, 
-             u.name AS userName, 
-             b.id AS bookId, 
-             b.title AS bookTitle, 
-             bb.borrowDate, 
-             bb.returnDate 
+      `SELECT
+             bb.id,
+             u.id AS userId,
+             u.name AS userName,
+             b.id AS bookId,
+             b.title AS bookTitle,
+             bb.borrowDate,
+             bb.returnDate
            FROM BorrowedBooks bb
            JOIN Users u ON bb.userId = u.id
            JOIN Books b ON bb.bookId = b.id
