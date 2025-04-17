@@ -1,3 +1,4 @@
+// routes/v1/index.ts
 import express from "express";
 import InfoController from "../../controllers/info-controller";
 import bookRoutes from "./book-routes";

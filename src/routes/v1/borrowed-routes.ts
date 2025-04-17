@@ -8,6 +8,6 @@ import {
 const router = express.Router();
 
 router.post("/borrow", validateBorrowRequest, borrowBook);
-router.put("/return/:id", validateReturnRequest, returnBook); //
+router.put("/return/:id", validateReturnRequest, returnBook);
 
 export default router;

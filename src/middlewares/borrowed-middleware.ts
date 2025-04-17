@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express"; // req, res replace by any
+import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import { errorResponse } from "../utils/common";
 import { AppError } from "../utils/errors/app-error";
