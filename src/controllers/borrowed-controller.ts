@@ -63,10 +63,25 @@ async function payFine(req: any, res: any) {
       });
     }
 
+    if (result.error) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        ...errorResponse,
+        message: result.message,
+        data: {
+          fine: result.fine,
+          dueAmount: result.dueAmount,
+          paidAmount: result.paidAmount,
+        },
+      });
+    }
+
     return res.status(StatusCodes.OK).json({
       ...successResponse,
-      message: "Fine payment updated successfully",
-      data: result,
+      message: result.message,
+      data: {
+        paidAmount: result.paidAmount,
+        dueAmount: result.dueAmount,
+      },
     });
   } catch (error: any) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

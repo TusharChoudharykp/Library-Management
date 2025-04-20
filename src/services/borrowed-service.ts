@@ -65,13 +65,25 @@ class BorrowedService {
 
   async payFine(id: number, amountPaid: number) {
     const [rows]: any = await pool.execute(
-      "SELECT fine, paidAmount FROM BorrowedBooks WHERE id = ?",
+      "SELECT fine, paidAmount, dueAmount FROM BorrowedBooks WHERE id = ?",
       [id]
     );
 
     if (rows.length === 0) return null;
 
-    const { fine, paidAmount } = rows[0];
+    const { fine, paidAmount, dueAmount } = rows[0];
+
+    // Prevent overpayment
+    if (amountPaid > dueAmount) {
+      return {
+        error: true,
+        message: `You are trying to pay more than your due amount.`,
+        fine,
+        paidAmount,
+        dueAmount,
+      };
+    }
+
     const newPaidAmount = paidAmount + amountPaid;
     const newDueAmount = Math.max(fine - newPaidAmount, 0);
 
@@ -80,7 +92,11 @@ class BorrowedService {
       [newPaidAmount, newDueAmount, id]
     );
 
-    return { paidAmount: newPaidAmount, dueAmount: newDueAmount };
+    return {
+      message: "Payment successful",
+      paidAmount: newPaidAmount,
+      dueAmount: newDueAmount,
+    };
   }
 }
 
