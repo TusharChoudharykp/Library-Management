@@ -32,3 +32,18 @@ export function validateReturnRequest(req: any, res: any, next: NextFunction) {
 
   next();
 }
+
+export function validateFinePayment(req: any, res: any, next: NextFunction) {
+  const { amountPaid } = req.body;
+
+  if (!amountPaid || isNaN(amountPaid) || amountPaid <= 0) {
+    errorResponse.message = "Invalid payment request";
+    errorResponse.error = new AppError(
+      ["Amount to pay is required and should be positive"],
+      StatusCodes.BAD_REQUEST
+    );
+    return res.status(StatusCodes.BAD_REQUEST).json(errorResponse);
+  }
+
+  next();
+}

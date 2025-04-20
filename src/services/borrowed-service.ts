@@ -13,18 +13,18 @@ class BorrowedService {
     const insertId = result.insertId;
 
     const [rows] = await pool.execute<RowDataPacket[]>(
-      `SELECT 
-             bb.id, 
-             u.id AS userId, 
-             u.name AS userName, 
-             b.id AS bookId, 
-             b.title AS bookTitle, 
-             bb.borrowDate, 
-             bb.returnDate 
-           FROM BorrowedBooks bb
-           JOIN Users u ON bb.userId = u.id
-           JOIN Books b ON bb.bookId = b.id
-           WHERE bb.id = ?`,
+      `SELECT
+        bb.id,
+        u.id AS userId,
+        u.name AS userName,
+        b.id AS bookId,
+        b.title AS bookTitle,
+        bb.borrowDate,
+        bb.returnDate
+       FROM BorrowedBooks bb
+       JOIN Users u ON bb.userId = u.id
+       JOIN Books b ON bb.bookId = b.id
+       WHERE bb.id = ?`,
       [insertId]
     );
 
@@ -53,12 +53,34 @@ class BorrowedService {
     );
     const fine = diffDays > 0 ? diffDays * 30 : 0;
 
+    const dueAmount = fine; // initially, dueAmount is equal to fine
+
     await pool.execute(
-      "UPDATE BorrowedBooks SET actualReturnDate = ?, fine = ? WHERE id = ?",
-      [actualReturnDate, fine, id]
+      "UPDATE BorrowedBooks SET actualReturnDate = ?, fine = ?, dueAmount = ? WHERE id = ?",
+      [actualReturnDate, fine, dueAmount, id]
     );
 
-    return { actualReturnDate, fine };
+    return { actualReturnDate, fine, dueAmount };
+  }
+
+  async payFine(id: number, amountPaid: number) {
+    const [rows]: any = await pool.execute(
+      "SELECT fine, paidAmount FROM BorrowedBooks WHERE id = ?",
+      [id]
+    );
+
+    if (rows.length === 0) return null;
+
+    const { fine, paidAmount } = rows[0];
+    const newPaidAmount = paidAmount + amountPaid;
+    const newDueAmount = Math.max(fine - newPaidAmount, 0);
+
+    await pool.execute(
+      "UPDATE BorrowedBooks SET paidAmount = ?, dueAmount = ? WHERE id = ?",
+      [newPaidAmount, newDueAmount, id]
+    );
+
+    return { paidAmount: newPaidAmount, dueAmount: newDueAmount };
   }
 }
 

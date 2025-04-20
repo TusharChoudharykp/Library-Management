@@ -49,4 +49,31 @@ async function returnBook(req: any, res: any) {
   }
 }
 
-export { borrowBook, returnBook };
+async function payFine(req: any, res: any) {
+  try {
+    const result = await borrowedService.payFine(
+      Number(req.params.id),
+      req.body.amountPaid
+    );
+
+    if (!result) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        ...errorResponse,
+        message: "Borrowed record not found",
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      ...successResponse,
+      message: "Fine payment updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      ...errorResponse,
+      message: error.message,
+    });
+  }
+}
+
+export { borrowBook, returnBook, payFine };
