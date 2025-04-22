@@ -1,22 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
+import { errorResponse } from "../utils/common/error-response";
+import { AppError } from "../utils/errors/app-error";
 
-export const validateCreateBook = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+const validateCreateBook = (req: any, res: any, next: NextFunction) => {
   const { title, author, publishedYear } = req.body;
 
   if (!title || !author || !publishedYear) {
-    res.status(StatusCodes.BAD_REQUEST).json({
-      success: false,
-      message: "Missing required fields: title, author, or publishedYear",
-      data: {},
-      error: {},
-    });
-    return; // explicitly return void
+    errorResponse.message = "Something went wrong while creating the book";
+    errorResponse.error = new AppError(
+      ["Missing required fields: title, author, or publishedYear"],
+      StatusCodes.BAD_REQUEST
+    );
+    return res.status(StatusCodes.BAD_REQUEST).json(errorResponse);
   }
 
-  next(); // proceed to controller
+  next();
 };
+
+export { validateCreateBook };

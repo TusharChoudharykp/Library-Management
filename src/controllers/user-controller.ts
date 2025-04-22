@@ -45,7 +45,7 @@ const login = async (req: any, res: any) => {
       expiresIn: "1d",
     });
 
-    //successResponse.message = "Login successful";
+    successResponse.message = "Login successful";
     successResponse.data = { token };
 
     return res.status(StatusCodes.OK).json(successResponse);
