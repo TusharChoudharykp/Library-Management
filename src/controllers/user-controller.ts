@@ -12,16 +12,15 @@ const userService = new UserService();
 const signup = async (req: any, res: any) => {
   try {
     const user = await userService.createUser(req.body);
-    return res.status(StatusCodes.CREATED).json({
-      ...successResponse,
-      message: "User registered successfully",
-      data: user,
-    });
+
+    successResponse.message = "User registered successfully";
+    successResponse.data = user;
+
+    return res.status(StatusCodes.CREATED).json(successResponse);
   } catch (error: any) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      ...errorResponse,
-      message: error.message,
-    });
+    errorResponse.error = error;
+
+    return res.status(error.statusCode).json(errorResponse);
   }
 };
 
@@ -32,34 +31,28 @@ const login = async (req: any, res: any) => {
     const user = await userService.findUserByEmail(email);
 
     if (!user) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        ...errorResponse,
-        message: "Invalid email or password",
-      });
+      errorResponse.message = "Invalid email or password";
+      return res.status(StatusCodes.UNAUTHORIZED).json(errorResponse);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        ...errorResponse,
-        message: "Invalid email or password",
-      });
+      errorResponse.message = "Invalid email or password";
+      return res.status(StatusCodes.UNAUTHORIZED).json(errorResponse);
     }
 
     const token = jwt.sign({ userId: user.id }, "your_jwt_secret", {
       expiresIn: "1d",
     });
 
-    return res.status(StatusCodes.OK).json({
-      ...successResponse,
-      message: "Login successful",
-      data: { token },
-    });
+    //successResponse.message = "Login successful";
+    successResponse.data = { token };
+
+    return res.status(StatusCodes.OK).json(successResponse);
   } catch (error: any) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      ...errorResponse,
-      message: error.message,
-    });
+    errorResponse.error = error;
+
+    return res.status(error.statusCode).json(errorResponse);
   }
 };
 
