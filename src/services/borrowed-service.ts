@@ -1,4 +1,5 @@
 import pool from "../config/config";
+
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 class BorrowedService {

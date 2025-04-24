@@ -6,23 +6,23 @@ import { errorResponse } from "../utils/common/error-response";
 
 const borrowedService = new BorrowedService();
 
-async function borrowBook(req: any, res: any) {
+const borrowBook = async (req: any, res: any) => {
   try {
     const result = await borrowedService.borrowBook(req.body);
-    return res.status(StatusCodes.CREATED).json({
-      ...successResponse,
-      message: "Book borrowed successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      ...errorResponse,
-      message: error.message,
-    });
-  }
-}
 
-async function returnBook(req: any, res: any) {
+    successResponse.message = "Book borrowed successfully";
+    successResponse.data = result;
+
+    return res.status(StatusCodes.CREATED).json(successResponse);
+  } catch (error: any) {
+    errorResponse.message = "Error while borrowing book";
+    errorResponse.error = error;
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errorResponse);
+  }
+};
+
+const returnBook = async (req: any, res: any) => {
   try {
     const result = await borrowedService.returnBook(
       Number(req.params.id),
@@ -30,26 +30,24 @@ async function returnBook(req: any, res: any) {
     );
 
     if (!result) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        ...errorResponse,
-        message: "Borrowed record not found",
-      });
+      errorResponse.message = "Borrowed record not found";
+      errorResponse.error = {};
+      return res.status(StatusCodes.NOT_FOUND).json(errorResponse);
     }
 
-    return res.status(StatusCodes.OK).json({
-      ...successResponse,
-      message: "Book returned successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      ...errorResponse,
-      message: error.message,
-    });
-  }
-}
+    successResponse.message = "Book returned successfully";
+    successResponse.data = result;
 
-async function payFine(req: any, res: any) {
+    return res.status(StatusCodes.OK).json(successResponse);
+  } catch (error: any) {
+    errorResponse.message = "Error while returning book";
+    errorResponse.error = error;
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errorResponse);
+  }
+};
+
+const payFine = async (req: any, res: any) => {
   try {
     const result = await borrowedService.payFine(
       Number(req.params.id),
@@ -57,38 +55,36 @@ async function payFine(req: any, res: any) {
     );
 
     if (!result) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        ...errorResponse,
-        message: "Borrowed record not found",
-      });
+      errorResponse.message = "Borrowed record not found";
+      errorResponse.error = {};
+      return res.status(StatusCodes.NOT_FOUND).json(errorResponse);
     }
 
     if (result.error) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        ...errorResponse,
-        message: result.message,
-        data: {
-          fine: result.fine,
-          dueAmount: result.dueAmount,
-          paidAmount: result.paidAmount,
-        },
-      });
+      errorResponse.message = result.message;
+      errorResponse.data = {
+        fine: result.fine,
+        dueAmount: result.dueAmount,
+        paidAmount: result.paidAmount,
+      };
+      errorResponse.error = {};
+      return res.status(StatusCodes.BAD_REQUEST).json(errorResponse);
     }
 
-    return res.status(StatusCodes.OK).json({
-      ...successResponse,
-      message: result.message,
-      data: {
-        paidAmount: result.paidAmount,
-        dueAmount: result.dueAmount,
-      },
-    });
+    successResponse.message = result.message;
+    successResponse.data = {
+      paidAmount: result.paidAmount,
+      dueAmount: result.dueAmount,
+    };
+
+    return res.status(StatusCodes.OK).json(successResponse);
   } catch (error: any) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      ...errorResponse,
-      message: error.message,
-    });
+    errorResponse.message = "Error while processing fine payment";
+    errorResponse.error = error;
+
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errorResponse);
   }
-}
+};
 
 export { borrowBook, returnBook, payFine };
+//add more functionalities like get all the current borrowed book and all the past borrowed books or get all due amount of users

@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { errorResponse } from "../utils/common";
 import { AppError } from "../utils/errors/app-error";
 
-export function validateBorrowRequest(req: any, res: any, next: NextFunction) {
+function validateBorrowRequest(req: any, res: any, next: NextFunction) {
   const { userId, bookId, borrowDate, returnDate } = req.body;
 
   if (!userId || !bookId || !borrowDate || !returnDate) {
@@ -18,7 +18,7 @@ export function validateBorrowRequest(req: any, res: any, next: NextFunction) {
   next();
 }
 
-export function validateReturnRequest(req: any, res: any, next: NextFunction) {
+function validateReturnRequest(req: any, res: any, next: NextFunction) {
   const { actualReturnDate } = req.body;
 
   if (!actualReturnDate) {
@@ -33,7 +33,7 @@ export function validateReturnRequest(req: any, res: any, next: NextFunction) {
   next();
 }
 
-export function validateFinePayment(req: any, res: any, next: NextFunction) {
+function validateFinePayment(req: any, res: any, next: NextFunction) {
   const { amountPaid } = req.body;
 
   if (!amountPaid || isNaN(amountPaid) || amountPaid <= 0) {
@@ -47,3 +47,5 @@ export function validateFinePayment(req: any, res: any, next: NextFunction) {
 
   next();
 }
+
+export { validateBorrowRequest, validateReturnRequest, validateFinePayment };
